@@ -28,6 +28,12 @@ class CipherApp
       end
       puts "Закодированная строка #{keyword} c ключем #{step}:"
       puts cipher.get_encrypt_str
+
+      puts "Желаете декодировать строку, надеюсь получиться ;) , если вы конечно введете ключ: "
+      decryptkey = gets.chomp
+      unless decryptkey.empty?
+        cipher.decrypt(decryptkey)
+      end
     end
 
 
