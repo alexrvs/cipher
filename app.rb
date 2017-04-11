@@ -21,7 +21,7 @@ class CipherApp
 
       puts "Введите ключевое слово:"
       keyword = gets.chomp
-      puts "Введите кл"
+      puts "Введите ключ в диапазоне он 1 до #{Cipher::COUNT_S.to_i - 1}"
       step = gets.chomp
       unless keyword.empty? && step.empty?
         cipher.encrypt(keyword, step)
