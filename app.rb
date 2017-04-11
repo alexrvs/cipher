@@ -11,6 +11,7 @@ class CipherApp
 
 
 
+
   class << self
 
     def run

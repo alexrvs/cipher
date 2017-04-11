@@ -40,6 +40,7 @@ class Cipher
     @step = step.to_i
     keyword.to_s
 
+
     @encryptArr = keyword.chars.to_a
       p @encryptArr
 
