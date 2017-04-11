@@ -38,6 +38,14 @@ class CipherApp
     end
 
 
+    def runTest
+      require_relative "cipher"
+
+      cipher = Cipher.new
+
+      cipher.decrypt_without_key
+
+    end
 
   end
 
