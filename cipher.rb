@@ -72,22 +72,26 @@ class Cipher
 
   def encrypt(keyword,step)
 
+    @step=step.to_i
     if @step < 0
       @step = step % 26
       @step = step + 26
     end
 
+    temp = []
     @step = step.to_i
-    keyword.to_s
+    @encryptString = keyword.to_s
     @encryptArr = keyword.chars.to_a
 
-      @encryptArr.each.with_index do |c, i|
-        if c >= 'A' && c <= 'Z'
+    bytes = @encryptString.unpack('c*')
+    p bytes
 
-        elsif
+    bytes.each {|i| temp << i + @step}
+    temp.to_s
+    result = temp.pack('c*')
+    puts result
+    exit(1)
 
-        end
-      end
 
       @encryptArr.each do |symbolEnc|
         ALPHA.each do |symbol|
