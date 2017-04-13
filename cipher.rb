@@ -49,6 +49,12 @@ class Cipher
       'z' => 0.0009
   }
 
+
+  ALPHA_STATISTIC2 = [0.08167, 0.01492, 0.02782, 0.04253, 0.12702, 0.02228, 0.02015, 0.06094,
+                      0.06966, 0.00153, 0.00772, 0.04025, 0.02406, 0.06749, 0.07507, 0.01929,
+                      0.00095, 0.05987, 0.06327, 0.09056, 0.02758, 0.00978, 0.02360, 0.00150,
+                      0.01974, 0.00074]
+
   attr_reader :alpha, :keyword, :encryptArr, :encryptArrNew
   attr_writer :keyword, :encryptArr, :encryptArrNew
 
@@ -66,12 +72,22 @@ class Cipher
 
   def encrypt(keyword,step)
 
+    if @step < 0
+      @step = step % 26
+      @step = step + 26
+    end
+
     @step = step.to_i
     keyword.to_s
-
-
     @encryptArr = keyword.chars.to_a
-      p @encryptArr
+
+      @encryptArr.each.with_index do |c, i|
+        if c >= 'A' && c <= 'Z'
+
+        elsif
+
+        end
+      end
 
       @encryptArr.each do |symbolEnc|
         ALPHA.each do |symbol|
@@ -99,11 +115,14 @@ class Cipher
     end
 
 
-  def decrypt(secret_key)
+  def decrypt(text = '', secret_key)
     @decryptKey = secret_key.to_i
 
-    if @@saved_secret_key.to_i == @decryptKey
+#    if @@saved_secret_key.to_i == @decryptKey
 
+      unless text.empty?
+       @encryptArrNew = text.chars.to_a
+      end
       @encryptArrNew.each do |symbolDecrypt|
         ALPHA.each do |symbol|
           if symbol == symbolDecrypt
@@ -120,8 +139,8 @@ class Cipher
       @decryptArr.to_s
       puts @decryptArr.join
     else
-      puts "Вы ввели неверный декодировочный ключ, Попробуйте еще раз!)"
-    end
+#      puts "Вы ввели неверный декодировочный ключ, Попробуйте еще раз!)"
+#    end
 
   end
 
@@ -139,74 +158,65 @@ class Cipher
     # might actually be incorrect array art  - original text, "njhiu bduvbmmz cf jodpssfdu bssbz bsu"  - decrypt word
     # attackatonce - original word, "cvvcemcvqpeg" - decrypt word
 
-
-    encryptStr = "njhiu bduvbmmz cf jodpssfdu bssbz bsu"
-
-    check_frequency_encrypt_string(encryptStr)
-    exit(1)
     @encryptArrWKey =  encryptStr.chars.to_a
-
     ALPHA_STATISTIC.each {|key,value|  "#{key} => #{value}" }
-
-    puts "decrypt without key"
-    puts "|_____________________|"
-
     ALPHA_STATISTIC.each do |key,value|
-
       @encryptArrWKey.each do |encryptSymbol|
          if key == encryptSymbol
             puts key
-
         end
       end
-
     end
-    puts "|_____________________|"
+  end
 
-    #puts ALPHA_STATISTIC.keys
+
+  def crackMsg(encryptMsg)
+
+    @strToArrForHash = encryptMsg.chars.to_a
+
+    @maxFloat64 = 1.797693134862315708145274237317043567981e+308
+    @hash_frequence = Array.new
+    sizeStr = @strToArrForHash.length
+    @shift = 0
+
+    (0..25).each do |empty| @hash_frequence << empty*0  end
+
+    ('a'..'z').each.with_index do |s , i|
+      @strToArrForHash.uniq.select do |c|
+        if s == c
+          @hash_frequence[i] = (@strToArrForHash.count(c)/sizeStr.to_f)
+        end
+      end
+    end
+
+    (0..26).each do |i|
+      chi = check_frequency_encrypt_string(@hash_frequence, i)
+      if chi < @maxFloat64
+        @maxFloat64 = chi
+        @shift = i
+      end
+    end
+    puts @shift
+    puts "Ваш текст декодирован :"
+
+    decrypt(encryptMsg, @shift)
+
   end
 
 
   private
 
-    def check_frequency_encrypt_string(str)
+    def check_frequency_encrypt_string( frequenciesArr ,rot)
 
-      @hash_frequence = Hash.new
-      @strToArrForHash = str.chars.to_a
-      p @strToArrForHash
 
-      sizeStr = @strToArrForHash.length
+      @sumChiSqrt = 0.0
+      @newDefaultHashAlpha = ALPHA_STATISTIC2
+      @newDefaultHashAlpha.each.with_index do |defaultValueStat, i|
+            encryptValueStat = frequenciesArr[(i+rot)%26]
 
-      @strToArrForHash.uniq.select { |c|  @hash_frequence["#{c}"] = (@strToArrForHash.count(c)/sizeStr.to_f).round(4)  }
-      puts @hash_frequence
-
-      @newDefaultHashAlpha = ALPHA_STATISTIC
-      @newDecryptArr = []
-
-      #@newDefaultHashAlpha.each  do |defaultKeyStat, defaultValueStat|
-
-        @hash_frequence.each do |encryptKeyStat, encryptValueStat|
-
-          maxEncryptValue = @hash_frequence.values.max
-          keyEncrypt = @hash_frequence.key(maxEncryptValue)
-
-          maxDefaultValue = @newDefaultHashAlpha.values.max
-          key = @newDefaultHashAlpha.key(maxDefaultValue)
-
-          @strToArrForHash.each do |oldEl|
-            if oldEl == keyEncrypt
-              @strToArrForHash[@strToArrForHash.index(keyEncrypt)] = key
-            end
-
-          end
-          #@newDefaultHashAlpha.delete_if {|keyD, value| keyD == key }
-          #@hash_frequence.delete_if {|keyE, value|   keyE == keyEncrypt}
-        end
-
-      #end
-
-      p @strToArrForHash
-
+            @sumChiSqrt += (((encryptValueStat - defaultValueStat) * (encryptValueStat - defaultValueStat)) / defaultValueStat)
+      end
+        @sumChiSqrt
     end
 
 end

@@ -42,11 +42,15 @@ class CipherApp
       require_relative "cipher"
 
       cipher = Cipher.new
-
-      cipher.decrypt_without_key
+      puts "Вставте текст, который нужно декодировать без использования ключа:"
+      encryptText = gets.chomp
+      unless encryptText.empty?
+        cipher.crackMsg(encryptText)
+      else
+        puts "Закодированный текст не может быть пустой строкой"
+      end
 
     end
-
   end
 
 end
