@@ -9,13 +9,9 @@ class Cipher
   # n - мощность алфавита (количество символов)
   # k - ключ
 
-
-
-#ALPHA = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
+  #ALPHA = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
 
   @@saved_secret_key = 0
-
-  #ALPHA = ('A'..'Z').to_a + ('a'..'z').to_a
 
   ALPHA = ('a'..'z').to_a
   COUNT_S = ALPHA.count
@@ -78,43 +74,33 @@ class Cipher
       @step = step + 26
     end
 
-    temp = []
+
     @step = step.to_i
-    @encryptString = keyword.to_s
-    @encryptArr = keyword.chars.to_a
+    @encryptString = keyword.split("")
 
-    bytes = @encryptString.unpack('c*')
-    p bytes
-
-    bytes.each {|i| temp << i + @step}
-    temp.to_s
-    result = temp.pack('c*')
-    puts result
-    exit(1)
-
-
-      @encryptArr.each do |symbolEnc|
-        ALPHA.each do |symbol|
-          if symbolEnc == symbol
-             newDecIndex = ALPHA.index(symbol).to_i + step.to_i
-               @encryptArrNew << ALPHA.fetch(newDecIndex)
+    @step.times do
+      @encryptString.each do |i|
+        if (i.ord >= 97 && i.ord <=122) || (i.ord >= 65 && i.ord <= 90)
+          if i.ord == 90
+            i.sub!('Z','A')
+          elsif i.ord == 122
+            i.sub!('z','a')
+          else
+            i.next!
           end
         end
-        if symbolEnc.to_s.match(/\s/)
-          @encryptArrNew << " "
-        end
+
+      end
+
     end
-    @encryptArrNew
-    @encryptArrNew.to_s
-    @encryptArrNew.join
+    @encryptString.to_s
+    @encryptString.join
+
   end
 
     def get_encrypt_str
-      @encryptArrNew.to_s
-      puts @encryptArrNew.join
-      if @encryptArrNew.kind_of?(String) && @encryptArrNew.length > 0
-
-      end
+      @encryptString.to_s
+      puts @encryptString.join
       @@saved_secret_key = @step
     end
 
@@ -148,30 +134,8 @@ class Cipher
 
   end
 
-  def decrypt_without_key
-
-    # 1. частотный анализ
-    # 2. декартово произведение
-    # 3. завершение простого компонента
-
-    # Буквы с наибольшей частотой в криптотексте заменяются на букву с наибольшей частотой из алфавита.
-    # Вероятность успешного вскрытия повышается с увеличением длины криптотекста.
-
-    #ALPHA_STATISTIC.map {|el| puts el}
-
-    # might actually be incorrect array art  - original text, "njhiu bduvbmmz cf jodpssfdu bssbz bsu"  - decrypt word
-    # attackatonce - original word, "cvvcemcvqpeg" - decrypt word
-
-    @encryptArrWKey =  encryptStr.chars.to_a
-    ALPHA_STATISTIC.each {|key,value|  "#{key} => #{value}" }
-    ALPHA_STATISTIC.each do |key,value|
-      @encryptArrWKey.each do |encryptSymbol|
-         if key == encryptSymbol
-            puts key
-        end
-      end
-    end
-  end
+  #   Критерий χ2 ("хи-квадрат", "критерий согласия Пирсона")
+  #   χ2=∑(fo−fe)/fe
 
 
   def crackMsg(encryptMsg)
